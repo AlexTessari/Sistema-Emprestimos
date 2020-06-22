@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" template="/templates/modelo.xhtml">
+
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menu.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+
+		<h:form id="frmfuncionarios">
+
+			<p:dataTable id="tblfuncionarios" widgetVar="tabelaFuncionarios"
+				emptyMessage="Nenhum registro encontrado"
+				value="#{MBFuncionarios.itens}" var="item" rows="10"
+				paginator="true" paginatorPosition="bottom">
+
+				<f:facet name="header">
+
+					<p:separator />
+
+					<p:panelGrid>
+						<h:outputText value="Cadastro Funcionários" />
+					</p:panelGrid>
+
+					<p:panelGrid>
+						<p:commandButton value="Novo" style="float:left"
+							styleClass="ui-priority-primary"
+							actionListener="#{MBFuncionarios.instacia}"
+							oncomplete="PF('dlgfunNovo').show();" update=":frmdia:pnldia" />
+					</p:panelGrid>
+
+				</f:facet>
+
+				<p:column headerText="Id">
+					<h:outputText value="#{item.idfunc}" />
+				</p:column>
+
+				<p:column headerText="Nome">
+					<h:outputText value="#{item.nome}" />
+				</p:column>
+
+				<p:column headerText="CPF">
+					<h:outputText value="#{item.cpf}" />
+				</p:column>
+
+				<p:column headerText="Setor">
+					<h:outputText value="#{item.setor}" />
+				</p:column>
+
+				<p:column headerText="Cargo">
+					<h:outputText value="#{item.cargo}" />
+				</p:column>
+
+				<p:column headerText="Data Admissão">
+					<h:outputText value="#{item.dataadm}">
+						<f:convertDateTime locale="pt_BR" dateStyle="long"
+							pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Opções">
+					<p:commandButton icon="ui-icon-trash"
+						oncomplete="PF('dlgfunExcluir').show();"
+						update=":frmExcluir:pnlExcluir">
+						<f:setPropertyActionListener value="#{item}"
+							target="#{MBFuncionarios.funcionarios}"></f:setPropertyActionListener>
+					</p:commandButton>
+
+					<p:commandButton icon="ui-icon-pencil"
+						oncomplete="PF('dlgfunEditar').show();"
+						update=":frmEditar:pnlEditar">
+						<f:setPropertyActionListener value="#{item}"
+							target="#{MBFuncionarios.funcionarios}"></f:setPropertyActionListener>
+					</p:commandButton>
+
+				</p:column>
+
+
+			</p:dataTable>
+		</h:form>
+
+		<p:dialog widgetVar="dlgfunNovo" closable="false" draggable="false"
+			resizable="false" header="Cadastrar Funcionários" modal="true"
+			appendTo="@(body)">
+
+			<h:form id="frmdia">
+
+				<h:panelGrid id="pnldia" columns="2">
+
+					<h:outputLabel value="Nome:" for="txtNomeNovo" />
+					<h:inputText size="30" maxlength="50" id="txtNomeNovo"
+						value="#{MBFuncionarios.funcionarios.nome}" required="true"
+						requiredMessage="Campo nome é obrigatório!" />
+
+					<h:outputLabel value="CPF:" for="txtCpfNovo" />
+					<p:inputMask id="txtCpfNovo"
+						value="#{MBFuncionarios.funcionarios.cpf}" mask="999.999.999-99"
+						required="true" requiredMessage="Campo Cpf é obrigatório!" />
+
+
+					<h:outputLabel value="Setor:" for="txtSetNovo" />
+					<h:inputText size="30" maxlength="50" id="txtSetNovo"
+						value="#{MBFuncionarios.funcionarios.setor}" required="true"
+						requiredMessage="Campo setor é obrigatório!" />
+
+					<h:outputLabel value="Cargo:" for="txtCarNovo" />
+					<h:inputText size="30" maxlength="50" id="txtCarNovo"
+						value="#{MBFuncionarios.funcionarios.cargo}" required="true"
+						requiredMessage="Campo cargo é obrigatório!" />
+
+					<h:outputLabel value="Data Admissão:" for="txtDadNovo" />
+					<p:calendar value="#{MBFuncionarios.funcionarios.dataadm}"
+						id="txtDadNovo" locale="pt" yearRange="c-100:c+100"
+						pattern="dd/MM/yyyy" navigator="true" showOn="button"
+						required="true"
+						requiredMessage="Campo data de admissão é obrigatório!" />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Salvar"
+						actionListener="#{MBFuncionarios.cadastro}"
+						oncomplete="verificacao(xhr, status, args, 'dlgfunNovo', 'tblfuncionarios');"
+						update=":frmfuncionarios:tblfuncionarios :msgGlobal" />
+					<p:commandButton value="Cancelar" process="@this"
+						onclick="PF('dlgfunNovo').hide();" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgfunExcluir" closable="false" draggable="false"
+			resizable="false" header="Excluir Funcionários" modal="true"
+			appendTo="@(body)">
+			<h:form id="frmExcluir">
+				<h:panelGrid id="pnlExcluir" columns="2">
+
+					<h:outputText value="ID:" />
+					<h:outputText value="#{MBFuncionarios.funcionarios.idfunc}" />
+
+					<h:outputText value="Nome:" />
+					<h:outputText value="#{MBFuncionarios.funcionarios.nome}" />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+
+					<p:commandButton value="Excluir"
+						actionListener="#{MBFuncionarios.Excluir}"
+						onclick="PF('dlgEmpExcluir').hide();"
+						update=":frmfuncionarios:tblfuncionarios :msgGlobal" />
+					<p:commandButton value="Cancelar" process="@this"
+						onclick="PF('dlgfunExcluir').hide();" />
+
+				</h:panelGrid>
+
+			</h:form>
+
+		</p:dialog>
+
+
+
+		<p:dialog widgetVar="dlgfunEditar" closable="false" draggable="false"
+			resizable="false" header="Editar Funcionários" modal="true"
+			appendTo="@(body)">
+			<h:form id="frmEditar">
+				<h:panelGrid id="pnlEditar" columns="2">
+
+					<h:outputLabel value="Nome:" for="txtNomNovo" />
+					<h:inputText size="30" maxlength="50" id="txtNomNovo"
+						value="#{MBFuncionarios.funcionarios.nome}" required="true"
+						requiredMessage="Campo nome é obrigatório!" />
+
+					<h:outputText value="CPF:" />
+					<p:inputMask id="txtCpffun"
+						value="#{MBFuncionarios.funcionarios.cpf}" mask="999.999.999-99"
+						required="true" requiredMessage="Campo Cpf é obrigatório!" />
+
+					<h:outputText value="Setor:" />
+					<h:inputText value="#{MBFuncionarios.funcionarios.setor}"
+						id="txtSetfun" required="true"
+						requiredMessage="Campo setor é obrigatório!" />
+
+					<h:outputText value="Cargo:" />
+					<h:inputText value="#{MBFuncionarios.funcionarios.cargo}"
+						id="txtCarfun" required="true"
+						requiredMessage="Campo cargo é obrigatório!" />
+
+					<p:outputLabel value="Data Admissão:" />
+					<p:calendar value="#{MBFuncionarios.funcionarios.dataadm}"
+						locale="pt" yearRange="c-100:c+100" pattern="dd/MM/yyyy"
+						navigator="true" />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+
+					<p:commandButton value="Editar"
+						actionListener="#{MBFuncionarios.Editar}"
+						oncomplete="verificacao(xhr, status, args, 'dlgfunEditar', 'tblfuncionarios');"
+						update=":frmfuncionarios:tblfuncionarios :msgGlobal" />
+					<p:commandButton value="Cancelar" process="@this"
+						onclick="PF('dlgfunEditar').hide();" />
+
+				</h:panelGrid>
+
+			</h:form>
+
+		</p:dialog>
+
+
+	</ui:define>
+
+</ui:composition>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" template="/templates/modelo.xhtml">
+
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menu.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+
+		<h:form id="frmEmprestimos">
+
+			<p:dataTable id="tblEmprestimos" widgetVar="tabelaEmprestimos"
+				emptyMessage="Nenhum registro encontrado"
+				value="#{MBEmprestimos.itens}" var="item" rows="20" paginator="true"
+				paginatorPosition="bottom">
+
+
+				<f:facet name="header">
+
+					<p:separator />
+
+					<p:panelGrid>
+						<h:outputText value="Cadastro Empréstimos" style="float:center" />
+					</p:panelGrid>
+
+					<p:panelGrid>
+						<p:commandButton value="Novo" style="float:left"
+							styleClass="ui-priority-primary"
+							actionListener="#{MBEmprestimos.prepararnovo}"
+							oncomplete="PF('dlgEmpNovo').show();"
+							update=":frmEmpNovo:pnlEmpNovo :msgGlobal" />
+					</p:panelGrid>
+
+				</f:facet>
+
+
+				<p:column headerText="Id Empréstimo">
+					<h:outputText value="#{item.idemp}" />
+				</p:column>
+
+				<p:column headerText="Funcionário">
+					<h:outputText value="#{item.funcionarios.nome}" />
+				</p:column>
+
+				<p:column headerText="Parcela">
+					<h:outputText value="#{item.parcela}" />
+				</p:column>
+
+				<p:column headerText="Vencimento">
+					<h:outputText value="#{item.vencimento}">
+						<f:convertDateTime locale="pt_BR" dateStyle="long"
+							pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Valor Parcela">
+					<h:outputText value="R$ #{item.valorparc}">
+						<f:convertNumber pattern="00.00" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Valor Pago">
+					<h:outputText value="R$ #{item.valorpag}">
+						<f:convertNumber pattern="00.00" />
+					</h:outputText>
+				</p:column>
+
+				<f:facet name="footer">
+
+				</f:facet>
+
+			</p:dataTable>
+		</h:form>
+
+		<p:dialog widgetVar="dlgEmpNovo" closable="false" draggable="false"
+			resizable="false" header="Cadastro Empréstimos" modal="true"
+			appendTo="@(body)">
+
+			<h:form id="frmEmpNovo">
+
+				<h:panelGrid id="pnlEmpNovo">
+
+					<h:panelGrid columns="2">
+						<p:outputLabel value="Data Operação:" />
+						<p:calendar value="#{MBEmprestimos.emprestimos.dataoperacao}"
+							id="txtdopemp" locale="pt" yearRange="c-100:c+100"
+							pattern="dd/MM/yyyy" navigator="true" showOn="button"
+							mindate="today" maxdate="25/05/2100" required="true"
+							requiredMessage="Campo Data Operação é obrigatório!" />
+
+						<p:outputLabel value="Funcionário:" />
+						<p:selectOneMenu
+							value="#{MBEmprestimos.emprestimos.funcionarios.idfunc}"
+							id="txtParemp" required="true"
+							requiredMessage="Campo Funcionário é obrigatório!">
+
+							<f:selectItem itemValue="" itemLabel="Selecione o Funcionário" />
+							<f:selectItems value="#{MBEmprestimos.comboFuncionarios}"
+								var="item" itemValue="#{item.idfunc}" itemLabel="#{item.nome}">
+
+							</f:selectItems>
+						</p:selectOneMenu>
+
+					</h:panelGrid>
+
+					<p:separator />
+
+					<h:panelGrid columns="2">
+						<p:outputLabel value="Valor do Empréstimo:" />
+						<h:inputText size="21" maxlength="20"
+							value="#{MBEmprestimos.emprestimos.valorparc}" id="txtVpaemp"
+							required="true"
+							requiredMessage="Campo Valor Empréstimo é obrigatório!" />
+
+						<p:outputLabel value="Quantidade Parcelas:" />
+						<p:selectOneMenu value="#{MBEmprestimos.emprestimos.parcela}"
+							id="txtParcemp" required="true"
+							requiredMessage="Campo Quantidade Parcelas é obrigatório!">
+
+							<f:selectItem itemValue="" itemLabel="Selecione as Parcelas" />
+							<f:selectItem itemLabel="3x" itemValue="3" />
+							<f:selectItem itemLabel="6x" itemValue="6" />
+							<f:selectItem itemLabel="12x" itemValue="12" />
+							<f:selectItem itemLabel="24x" itemValue="24" />
+
+						</p:selectOneMenu>
+
+						<p:outputLabel value="Data Primeira Parcela:" />
+						<p:calendar value="#{MBEmprestimos.emprestimos.vencimento}"
+							size="18" id="txtVenemp" locale="pt" yearRange="c-100:c+100"
+							pattern="dd/MM/yyyy" navigator="true" showOn="button"
+							mindate="today" maxdate="25/05/2100" required="true"
+							requiredMessage="Campo Data Primeira Parcela é obrigatório!" />
+
+						<p:outputLabel value="Observação:" />
+						<h:inputTextarea size="15" maxlength="100"
+							value="#{MBEmprestimos.emprestimos.observacao}" id="txtObsemp" />
+
+					</h:panelGrid>
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+
+
+
+					<p:commandButton value="Gerar Parcelas"
+						actionListener="#{MBEmprestimos.cadastro}"
+						oncomplete=" verificacao(xhr, status, args, 'dlgEmpNovo', 'tblEmprestimos');"
+						update=":frmEmprestimos:tblEmprestimos :msgGlobal" />
+
+					<p:commandButton value="Voltar" process="@this"
+						onclick="PF('dlgEmpNovo').hide();" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgEmpBaixar" closable="false" draggable="false"
+			resizable="false" header="Baixar Empréstimos" modal="true"
+			appendTo="@(body)">
+			<h:form id="frmEmpBaixar">
+				<h:panelGrid id="pnlEmpBaixar" columns="2">
+                    
+                    <p:panelGrid columns="2">
+					<h:outputText value="ID Empréstimo:" />
+					<h:outputText value="#{MBEmprestimos.emprestimos.idemp}" />
+
+					<h:outputText value="Funcionário:" />
+					<h:outputText
+						value="#{MBEmprestimos.emprestimos.funcionarios.nome}" />
+
+					<h:outputText value="Parcela:" />
+					<h:outputText value="#{MBEmprestimos.emprestimos.parcela}" />
+
+					<h:outputText value="Valor da Parcela:" />
+					<h:outputText value="#{MBEmprestimos.emprestimos.valorparc}" />
+
+					<h:outputText value="Valor Pago:" />
+					<h:outputText value="#{MBEmprestimos.emprestimos.valorparc}" />
+					</p:panelGrid>
+
+				</h:panelGrid>
+				<p:separator/>
+				<h:outputText value="Confirma baixar a parcela?"/>
+				<p:separator/>
+				<h:panelGrid columns="2">
+
+					<p:commandButton value="Baixar"
+						actionListener="#{MBEmprestimos.Baixar}"
+						onclick="PF('dlgEmpBaixar').hide();"
+						update=":frmEmprestimos:tblEmprestimos :msgGlobal" />
+					<p:commandButton value="Cancelar" process="@this"
+						onclick="PF('dlgEmpBaixar').hide();" />
+
+				</h:panelGrid>
+
+			</h:form>
+
+		</p:dialog>
+
+
+	</ui:define>
+</ui:composition>
